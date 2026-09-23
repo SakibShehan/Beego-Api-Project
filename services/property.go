@@ -10,7 +10,7 @@ import (
 	beego "github.com/beego/beego/v2/server/web"
 )
 
-// in memory storing
+// in memory storing, stays in package level
 var store []models.SourceProperty
 
 // read data from config file
@@ -107,4 +107,14 @@ func GetAll() []models.PropertyResponse {
 		result = append(result, Transform(s))
 	}
 	return result
+}
+
+// ok will false if property doesnt exists
+func GetByID(id string) (resp models.PropertyResponse, ok bool) {
+	for _, s := range store {
+		if s.ID == id {
+			return Transform(s), true
+		}
+	}
+	return models.PropertyResponse{}, false
 }
