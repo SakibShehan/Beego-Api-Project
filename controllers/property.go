@@ -49,9 +49,8 @@ func (c *PropertyController) GetOne() {
 	c.ServeJSON()
 }
 
-// parseFilterParams reads and validates query params for GET /v1/properties.
-// Returns (params, nil) on success, or (zero value, *ErrorResponse) on the
-// first invalid param found.
+//  reads and validates query params
+
 func (c *PropertyController) parseFilterParams() (models.FilterParams, *models.ErrorResponse) {
 	var params models.FilterParams
 
@@ -61,6 +60,14 @@ func (c *PropertyController) parseFilterParams() (models.FilterParams, *models.E
 			return params, &models.ErrorResponse{Error: "invalid min_price: must be a number"}
 		}
 		params.MinPrice = &v
+	}
+
+	if raw := c.GetString("max_price"); raw != "" {
+		v, err := strconv.ParseFloat(raw, 64)
+		if err != nil {
+			return params, &models.ErrorResponse{Error: "invalid max_price: must be a number"}
+		}
+		params.MaxPrice = &v
 	}
 
 	return params, nil
