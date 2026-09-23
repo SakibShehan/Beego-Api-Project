@@ -8,6 +8,24 @@ import (
 	beego "github.com/beego/beego/v2/server/web"
 )
 
+// property validation
+var validPropertyTypes = map[string]bool{
+	"Hotel":     true,
+	"House":     true,
+	"Apartment": true,
+	"Villa":     true,
+	"Resort":    true,
+	"Hostel":    true,
+}
+
+// feeds validation
+var validFeeds = map[int]bool{
+	11: true,
+	12: true,
+	22: true,
+	24: true,
+}
+
 type PropertyController struct {
 	beego.Controller
 }
@@ -68,6 +86,64 @@ func (c *PropertyController) parseFilterParams() (models.FilterParams, *models.E
 			return params, &models.ErrorResponse{Error: "invalid max_price: must be a number"}
 		}
 		params.MaxPrice = &v
+	}
+
+	if raw := c.GetString("min_star_rating"); raw != "" {
+		v, err := strconv.Atoi(raw)
+		if err != nil {
+			return params, &models.ErrorResponse{Error: "invalid min_star_rating: must be an integer"}
+		}
+		params.MinStarRating = &v
+	}
+
+	if raw := c.GetString("min_review_score"); raw != "" {
+		v, err := strconv.ParseFloat(raw, 64)
+		if err != nil {
+			return params, &models.ErrorResponse{Error: "invalid min_review_score: must be a number"}
+		}
+		params.MinReviewScore = &v
+	}
+
+	if raw := c.GetString("min_reviews"); raw != "" {
+		v, err := strconv.Atoi(raw)
+		if err != nil {
+			return params, &models.ErrorResponse{Error: "invalid min_reviews: must be an integer"}
+		}
+		params.MinReviews = &v
+	}
+
+	if raw := c.GetString("published"); raw != "" {
+		v, err := strconv.ParseBool(raw)
+		if err != nil {
+			return params, &models.ErrorResponse{Error: "invalid published: must be true or false"}
+		}
+		params.Published = &v
+	}
+
+	if raw := c.GetString("property_type"); raw != "" {
+		if !validPropertyTypes[raw] {
+			return params, &models.ErrorResponse{Error: "invalid property_type: must be one of Hotel, House, Apartment, Villa, Resort, Hostel"}
+		}
+		params.PropertyType = &raw
+	}
+
+	if raw := c.GetString("feed"); raw != "" {
+		v, err := strconv.Atoi(raw)
+		if err != nil {
+			return params, &models.ErrorResponse{Error: "invalid feed: must be an integer"}
+		}
+		if !validFeeds[v] {
+			return params, &models.ErrorResponse{Error: "invalid feed: must be one of 11, 12, 22, 24"}
+		}
+		params.Feed = &v
+	}
+
+	if raw := c.GetString("min_bedroom"); raw != "" {
+		v, err := strconv.Atoi(raw)
+		if err != nil {
+			return params, &models.ErrorResponse{Error: "invalid min_bedroom: must be an integer"}
+		}
+		params.MinBedroom = &v
 	}
 
 	return params, nil

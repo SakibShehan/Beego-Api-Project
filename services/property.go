@@ -128,6 +128,28 @@ func matches(s models.SourceProperty, params models.FilterParams) bool {
 	if params.MaxPrice != nil && s.USDPrice > *params.MaxPrice {
 		return false
 	}
+
+	if params.MinStarRating != nil && s.StarRating < *params.MinStarRating {
+		return false
+	}
+	if params.MinReviewScore != nil && s.ReviewScoreGeneral < *params.MinReviewScore {
+		return false
+	}
+	if params.MinReviews != nil && s.NumberOfReview < *params.MinReviews {
+		return false
+	}
+	if params.Published != nil && s.Published != *params.Published {
+		return false
+	}
+	if params.PropertyType != nil && s.PropertyTypeCategory != *params.PropertyType {
+		return false
+	}
+	if params.Feed != nil && s.Feed != *params.Feed {
+		return false
+	}
+	if params.MinBedroom != nil && s.BedroomCount < *params.MinBedroom {
+		return false
+	}
 	return true
 }
 
