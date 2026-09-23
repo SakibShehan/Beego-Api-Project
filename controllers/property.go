@@ -48,7 +48,6 @@ type PropertyController struct {
 // @Success 200 {object} models.ListResponse
 // @Failure 400 {object} models.ErrorResponse "invalid query parameter"
 // @router / [get]
-
 // responses in call of  GET /v1/properties
 func (c *PropertyController) GetList() {
 	params, errResp := c.parseFilterParams()
@@ -77,7 +76,6 @@ func (c *PropertyController) GetList() {
 // @Success 200 {object} models.PropertyResponse
 // @Failure 404 {object} models.ErrorResponse "property not found"
 // @router /:id [get]
-
 // returns by id
 func (c *PropertyController) GetOne() {
 	id := c.Ctx.Input.Param(":id")
