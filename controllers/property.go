@@ -3,6 +3,7 @@ package controllers
 import (
 	"Beego-Api-Project/models"
 	"Beego-Api-Project/services"
+	"strconv"
 
 	beego "github.com/beego/beego/v2/server/web"
 )
@@ -13,7 +14,15 @@ type PropertyController struct {
 
 // responses in call of  GET /v1/properties
 func (c *PropertyController) GetList() {
-	items := services.GetAll()
+	params, errResp := c.parseFilterParams()
+	if errResp != nil {
+		c.Ctx.Output.SetStatus(400)
+		c.Data["json"] = *errResp
+		c.ServeJSON()
+		return
+	}
+
+	items := services.GetFiltered(params)
 
 	c.Data["json"] = models.ListResponse{
 		Result: models.ListResult{
@@ -38,4 +47,21 @@ func (c *PropertyController) GetOne() {
 
 	c.Data["json"] = prop
 	c.ServeJSON()
+}
+
+// parseFilterParams reads and validates query params for GET /v1/properties.
+// Returns (params, nil) on success, or (zero value, *ErrorResponse) on the
+// first invalid param found.
+func (c *PropertyController) parseFilterParams() (models.FilterParams, *models.ErrorResponse) {
+	var params models.FilterParams
+
+	if raw := c.GetString("min_price"); raw != "" {
+		v, err := strconv.ParseFloat(raw, 64)
+		if err != nil {
+			return params, &models.ErrorResponse{Error: "invalid min_price: must be a number"}
+		}
+		params.MinPrice = &v
+	}
+
+	return params, nil
 }

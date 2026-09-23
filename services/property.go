@@ -118,3 +118,25 @@ func GetByID(id string) (resp models.PropertyResponse, ok bool) {
 	}
 	return models.PropertyResponse{}, false
 }
+
+// matches reports whether a single source record satisfies every filter
+// set in params (AND logic). Add one `if` block per new filter here.
+func matches(s models.SourceProperty, params models.FilterParams) bool {
+	if params.MinPrice != nil && s.USDPrice < *params.MinPrice {
+		return false
+	}
+	return true
+}
+
+// GetFiltered filters the in-memory store using params, then transforms
+// each matching record. Always returns a non-nil slice.
+func GetFiltered(params models.FilterParams) []models.PropertyResponse {
+	result := []models.PropertyResponse{}
+	for _, s := range store {
+		if !matches(s, params) {
+			continue
+		}
+		result = append(result, Transform(s))
+	}
+	return result
+}
