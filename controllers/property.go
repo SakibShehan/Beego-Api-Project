@@ -23,3 +23,19 @@ func (c *PropertyController) GetList() {
 	}
 	c.ServeJSON()
 }
+
+// returns by id
+func (c *PropertyController) GetOne() {
+	id := c.Ctx.Input.Param(":id")
+
+	prop, ok := services.GetByID(id)
+	if !ok {
+		c.Ctx.Output.SetStatus(404)
+		c.Data["json"] = models.ErrorResponse{Error: "Property not found"}
+		c.ServeJSON()
+		return
+	}
+
+	c.Data["json"] = prop
+	c.ServeJSON()
+}
