@@ -146,5 +146,16 @@ func (c *PropertyController) parseFilterParams() (models.FilterParams, *models.E
 		params.MinBedroom = &v
 	}
 
+	if raw := c.GetString("limit"); raw != "" {
+		v, err := strconv.Atoi(raw)
+		if err != nil {
+			return params, &models.ErrorResponse{Error: "invalid limit: must be an integer"}
+		}
+		if v < 0 {
+			return params, &models.ErrorResponse{Error: "invalid limit: must be zero or a positive integer"}
+		}
+		params.Limit = &v
+	}
+
 	return params, nil
 }

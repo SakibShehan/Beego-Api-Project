@@ -10,4 +10,5 @@ type FilterParams struct {
 	PropertyType   *string
 	Feed           *int
 	MinBedroom     *int
+	Limit          *int
 }

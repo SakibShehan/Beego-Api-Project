@@ -162,5 +162,9 @@ func GetFiltered(params models.FilterParams) []models.PropertyResponse {
 		}
 		result = append(result, Transform(s))
 	}
+	if params.Limit != nil && *params.Limit < len(result) {
+		result = result[:*params.Limit]
+	}
+
 	return result
 }
