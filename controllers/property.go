@@ -31,6 +31,24 @@ type PropertyController struct {
 	beego.Controller
 }
 
+// GetList godoc
+// @Title Get property list
+// @Description List properties with optional AND filters, amenities OR filter, and limit
+// @Param	min_price		query	float64	false	"Minimum price (usd_price >= min_price)"
+// @Param	max_price		query	float64	false	"Maximum price (usd_price <= max_price)"
+// @Param	min_star_rating		query	int	false	"Minimum star rating"
+// @Param	min_review_score	query	float64	false	"Minimum review score"
+// @Param	min_reviews		query	int	false	"Minimum number of reviews"
+// @Param	published		query	bool	false	"Published status (true or false)"
+// @Param	property_type		query	string	false	"Exact match: Hotel, House, Apartment, Villa, Resort, Hostel"
+// @Param	feed			query	int	false	"Exact match: 11, 12, 22, or 24"
+// @Param	min_bedroom		query	int	false	"Minimum bedroom count"
+// @Param	amenities		query	string	false	"Comma-separated list, OR match, e.g. Internet,Parking"
+// @Param	limit			query	int	false	"Cap number of results returned"
+// @Success 200 {object} models.ListResponse
+// @Failure 400 {object} models.ErrorResponse "invalid query parameter"
+// @router / [get]
+
 // responses in call of  GET /v1/properties
 func (c *PropertyController) GetList() {
 	params, errResp := c.parseFilterParams()
@@ -51,6 +69,14 @@ func (c *PropertyController) GetList() {
 	}
 	c.ServeJSON()
 }
+
+// GetOne godoc
+// @Title Get property by ID
+// @Description Return a single transformed property object
+// @Param	id		path	string	true	"Property ID, e.g. BC-1000001"
+// @Success 200 {object} models.PropertyResponse
+// @Failure 404 {object} models.ErrorResponse "property not found"
+// @router /:id [get]
 
 // returns by id
 func (c *PropertyController) GetOne() {
