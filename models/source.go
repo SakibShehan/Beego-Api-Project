@@ -2,6 +2,7 @@ package models
 
 import "encoding/json"
 
+// SourceProperty mirrors one raw record from rental_properties.json.
 type SourceProperty struct {
 	ID                   string   `json:"id"`
 	Feed                 int      `json:"feed"`
@@ -24,23 +25,43 @@ type SourceProperty struct {
 	StarRating           int      `json:"star_rating"`
 	AmenityCategories    []string `json:"amenity_categories"`
 	LonLat               LonLat   `json:"lonlat"`
-	Categories           string   `json:"categories"`
+	Categories           string   `json:"categories"` // JSON-encoded array of CategoryEntry — parse with Breadcrumbs()
 	Published            bool     `json:"published"`
 	Images               []string `json:"images"`
 }
 
+// LonLat mirrors the source's { "coordinates": [lon, lat] } object.
 type LonLat struct {
 	Coordinates []float64 `json:"coordinates"`
 }
 
-// convert JSON Categories string into a actual string.
+// CategoryEntry mirrors one element of the JSON-encoded Categories string,
+// e.g. {"LocationID":"89","Name":"Japan","Type":"country","Slug":"japan","Display":["japan"]}
+type CategoryEntry struct {
+	LocationID string   `json:"LocationID"`
+	Name       string   `json:"Name"`
+	Type       string   `json:"Type"`
+	Slug       string   `json:"Slug"`
+	Display    []string `json:"Display"`
+}
+
+// Breadcrumbs parses the JSON-encoded Categories string (an array of
+// CategoryEntry objects) and returns just their Name values, in order
+// (typically country -> state -> city). Never returns nil — an empty or
+// invalid field yields an empty slice.
 func (s SourceProperty) Breadcrumbs() ([]string, error) {
 	if s.Categories == "" {
 		return []string{}, nil
 	}
-	var out []string
-	if err := json.Unmarshal([]byte(s.Categories), &out); err != nil {
+
+	var entries []CategoryEntry
+	if err := json.Unmarshal([]byte(s.Categories), &entries); err != nil {
 		return []string{}, err
+	}
+
+	out := make([]string, 0, len(entries))
+	for _, e := range entries {
+		out = append(out, e.Name)
 	}
 	return out, nil
 }
