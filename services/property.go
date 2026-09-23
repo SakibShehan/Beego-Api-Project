@@ -150,6 +150,10 @@ func matches(s models.SourceProperty, params models.FilterParams) bool {
 	if params.MinBedroom != nil && s.BedroomCount < *params.MinBedroom {
 		return false
 	}
+
+	if len(params.Amenities) > 0 && !hasAnyAmenity(s.AmenityCategories, params.Amenities) {
+		return false
+	}
 	return true
 }
 
@@ -167,4 +171,16 @@ func GetFiltered(params models.FilterParams) []models.PropertyResponse {
 	}
 
 	return result
+}
+
+// OR amenity checking
+func hasAnyAmenity(recordAmenities []string, wanted []string) bool {
+	for _, w := range wanted {
+		for _, a := range recordAmenities {
+			if a == w {
+				return true
+			}
+		}
+	}
+	return false
 }

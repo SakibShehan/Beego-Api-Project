@@ -4,6 +4,7 @@ import (
 	"Beego-Api-Project/models"
 	"Beego-Api-Project/services"
 	"strconv"
+	"strings"
 
 	beego "github.com/beego/beego/v2/server/web"
 )
@@ -155,6 +156,21 @@ func (c *PropertyController) parseFilterParams() (models.FilterParams, *models.E
 			return params, &models.ErrorResponse{Error: "invalid limit: must be zero or a positive integer"}
 		}
 		params.Limit = &v
+	}
+
+	//////// OR filtering ///////////////////
+
+	if raw := c.GetString("amenities"); raw != "" {
+		parts := strings.Split(raw, ",")
+		amenities := make([]string, 0, len(parts))
+		for _, p := range parts {
+			p = strings.TrimSpace(p)
+			if p == "" {
+				return params, &models.ErrorResponse{Error: "invalid amenities: contains an empty value"}
+			}
+			amenities = append(amenities, p)
+		}
+		params.Amenities = amenities
 	}
 
 	return params, nil
