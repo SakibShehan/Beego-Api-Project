@@ -204,8 +204,31 @@ func TestMatches_AmenitiesOR(t *testing.T) {
 		}
 	}
 
-	want := []string{"P1", "P2"} // P1 has Pool, P2 has Parking, P3 has neither
+	want := []string{"P1", "P2"} // p1 and p2 will mathc
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("matches() amenities OR mismatch\ngot:  %v\nwant: %v", got, want)
+	}
+}
+
+///////////////// AND OR combined Test ///////////////////////////////
+
+func TestCombinedAndOr(t *testing.T) {
+	data := sampleStore()
+	// feed=11 AND (has Internet OR has Pool)
+	params := models.FilterParams{
+		Feed:      ptrInt(11),
+		Amenities: []string{"Internet", "Pool"},
+	}
+
+	var got []string
+	for _, s := range data {
+		if matches(s, params) {
+			got = append(got, s.ID)
+		}
+	}
+
+	want := []string{"P1", "P3"} // both are feed 11, both have Internet
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("matches() combined AND+OR mismatch\ngot:  %v\nwant: %v", got, want)
 	}
 }
