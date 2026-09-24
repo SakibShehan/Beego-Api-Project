@@ -251,3 +251,29 @@ func TestGetFiltered_EmptyResult(t *testing.T) {
 		t.Errorf("GetFiltered() returned %d items, want 0", len(got))
 	}
 }
+
+/////////////////// Get by ID endpoint test ///////////////////////
+
+func TestGetByID(t *testing.T) {
+	// reads from the package-level store
+	original := store
+	store = sampleStore()
+	defer func() { store = original }()
+
+	t.Run("found", func(t *testing.T) {
+		got, ok := GetByID("P1")
+		if !ok {
+			t.Fatal(`GetByID("P1") ok = false, want true`)
+		}
+		if got.ID != "P1" {
+			t.Errorf(`GetByID("P1").ID = %q, want "P1"`, got.ID)
+		}
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		_, ok := GetByID("does-not-exist")
+		if ok {
+			t.Error(`GetByID("does-not-exist") ok = true, want false`)
+		}
+	})
+}
