@@ -122,3 +122,67 @@ func TestTransform(t *testing.T) {
 		})
 	}
 }
+
+// define data from SourceProperty
+func sampleStore() []models.SourceProperty {
+	return []models.SourceProperty{
+		{
+			ID: "P1", Feed: 11, Published: true, USDPrice: 100,
+			PropertyTypeCategory: "Hotel", StarRating: 4, ReviewScoreGeneral: 8.0,
+			NumberOfReview: 20, BedroomCount: 2,
+			AmenityCategories: []string{"Internet", "Pool"},
+		},
+		{
+			ID: "P2", Feed: 12, Published: false, USDPrice: 200,
+			PropertyTypeCategory: "Villa", StarRating: 5, ReviewScoreGeneral: 9.0,
+			NumberOfReview: 5, BedroomCount: 4,
+			AmenityCategories: []string{"Parking"},
+		},
+		{
+			ID: "P3", Feed: 11, Published: false, USDPrice: 50,
+			PropertyTypeCategory: "Hostel", StarRating: 2, ReviewScoreGeneral: 6.0,
+			NumberOfReview: 2, BedroomCount: 1,
+			AmenityCategories: []string{"Internet"},
+		},
+	}
+}
+
+// helpers to get a pointer
+func ptrFloat(v float64) *float64 { return &v }
+func ptrInt(v int) *int           { return &v }
+func ptrBool(v bool) *bool        { return &v }
+
+func TestMatches_ANDFilters(t *testing.T) {
+	data := sampleStore()
+
+	tests := []struct {
+		name    string
+		params  models.FilterParams
+		wantIDs []string
+	}{
+		{
+			name:    "feed AND published",
+			params:  models.FilterParams{Feed: ptrInt(11), Published: ptrBool(false)},
+			wantIDs: []string{"P3"},
+		},
+		{
+			name:    "price range",
+			params:  models.FilterParams{MinPrice: ptrFloat(60), MaxPrice: ptrFloat(150)},
+			wantIDs: []string{"P1"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got []string
+			for _, s := range data {
+				if matches(s, tt.params) {
+					got = append(got, s.ID)
+				}
+			}
+			if !reflect.DeepEqual(got, tt.wantIDs) {
+				t.Errorf("matches() AND filter mismatch\ngot:  %v\nwant: %v", got, tt.wantIDs)
+			}
+		})
+	}
+}
