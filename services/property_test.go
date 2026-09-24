@@ -232,3 +232,22 @@ func TestCombinedAndOr(t *testing.T) {
 		t.Errorf("matches() combined AND+OR mismatch\ngot:  %v\nwant: %v", got, want)
 	}
 }
+
+///////////////////////// Empty result handle test ////////////////////////////////////
+
+func TestGetFiltered_EmptyResult(t *testing.T) {
+	// GetFiltered reads from the package-level store variable and swap for original chekc
+	original := store
+	store = sampleStore()
+	defer func() { store = original }()
+
+	params := models.FilterParams{MinPrice: ptrFloat(9999)} // no record is this expensive
+	got := GetFiltered(params)
+
+	if got == nil {
+		t.Fatal("GetFiltered() returned nil, want a non-nil empty slice")
+	}
+	if len(got) != 0 {
+		t.Errorf("GetFiltered() returned %d items, want 0", len(got))
+	}
+}
