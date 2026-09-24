@@ -7,6 +7,8 @@ import (
 	"Beego-Api-Project/models"
 )
 
+/////////////////////// Transfrom Test //////////////////////////////////////////////////
+
 // each entry are mapped from source property
 func TestTransform(t *testing.T) {
 	tests := []struct {
@@ -123,6 +125,8 @@ func TestTransform(t *testing.T) {
 	}
 }
 
+/////////////////////////// AND filtering test ////////////////////////////
+
 // define data from SourceProperty
 func sampleStore() []models.SourceProperty {
 	return []models.SourceProperty{
@@ -184,5 +188,24 @@ func TestMatches_ANDFilters(t *testing.T) {
 				t.Errorf("matches() AND filter mismatch\ngot:  %v\nwant: %v", got, tt.wantIDs)
 			}
 		})
+	}
+}
+
+/////////////////// Amenities OR check /////////////////////////////////////
+
+func TestMatches_AmenitiesOR(t *testing.T) {
+	data := sampleStore()
+	params := models.FilterParams{Amenities: []string{"Pool", "Parking"}}
+
+	var got []string
+	for _, s := range data {
+		if matches(s, params) {
+			got = append(got, s.ID)
+		}
+	}
+
+	want := []string{"P1", "P2"} // P1 has Pool, P2 has Parking, P3 has neither
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("matches() amenities OR mismatch\ngot:  %v\nwant: %v", got, want)
 	}
 }
